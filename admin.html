@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciador de Links | Evoluindo no Amor</title>
+    <!-- Tailwind CSS via CDN para um visual moderno e responsivo -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#fff1f2',
+                            100: '#ffe4e6',
+                            500: '#f43f5e',
+                            600: '#e11d48',
+                            700: '#be123c',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Ícones Lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between">
+
+    <!-- Barra Superior -->
+    <header class="border-b border-slate-800 bg-slate-900/60 sticky top-0 z-30 backdrop-blur-md">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-brand-600 p-2 rounded-xl shadow-lg shadow-brand-600/30">
+                    <i data-lucide="link-2" class="w-6 h-6 text-white"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg sm:text-xl tracking-tight text-white">PrettyLinks <span class="text-brand-500">GitHub</span></h1>
+                    <p class="text-xs text-slate-400">Painel Oficial • Evoluindo no Amor</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <span id="connection-badge" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                    <span class="w-2 h-2 rounded-full bg-amber-400 mr-2 animate-pulse"></span>
+                    Configuração Pendente
+                </span>
+                <button onclick="toggleModal('help-modal')" class="p-2 text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-lg transition" title="Como configurar o Token">
+                    <i data-lucide="help-circle" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 py-8 flex-grow w-full grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- Coluna Esquerda: Configurações + Criador (7 colunas) -->
+        <div class="lg:col-span-7 space-y-6">
+            
+            <!-- Cartão 1: Credenciais do GitHub (Salvas no Navegador) -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-2">
+                        <i data-lucide="key-round" class="w-5 h-5 text-brand-500"></i>
+                        <h2 class="text-base font-semibold text-white">1. Conexão com seu GitHub</h2>
+                    </div>
+                    <button onclick="toggleConfigSection()" id="toggle-config-btn" class="text-xs text-slate-400 hover:text-brand-400 underline">
+                        Mostrar/Ocultar
+                    </button>
+                </div>
+
+                <div id="config-section" class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">Usuário ou Organização GitHub</label>
+                            <input type="text" id="gh-owner" value="evoluindonoamor" oninput="updatePreviewAndSave()" 
+                                class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500 transition"
+                                placeholder="ex: evoluindonoamor">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">Nome do Repositório</label>
+                            <input type="text" id="gh-repo" value="evoluindonoamor.github.io" oninput="updatePreviewAndSave()" 
+                                class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500 transition"
+                                placeholder="ex: evoluindonoamor.github.io">
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="block text-xs font-medium text-slate-400">Token de Acesso Pessoal (Senha API do GitHub)</label>
+                            <button onclick="toggleModal('help-modal')" class="text-xs text-brand-400 hover:underline flex items-center">
+                                <i data-lucide="info" class="w-3 h-3 mr-1"></i> Onde pego meu Token?
+                            </button>
+                        </div>
+                        <div class="relative">
+                            <input type="password" id="gh-token" oninput="updatePreviewAndSave()" 
+                                class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-3.5 pr-10 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500 transition"
+                                placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+                            <button type="button" onclick="toggleTokenVisibility()" class="absolute right-3 top-2.5 text-slate-500 hover:text-slate-300">
+                                <i data-lucide="eye" id="eye-icon" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                        <p class="text-[11px] text-slate-500 mt-1.5 flex items-center">
+                            <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-500 mr-1 flex-shrink-0"></i>
+                            Fique tranquilo: Seu token fica salvo apenas na memória deste seu navegador (LocalStorage).
+                        </p>
+                    </div>
+
+                    <!-- Auto-Importação Direta do Painel para o GitHub -->
+                    <div class="pt-3 border-t border-slate-800/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                        <div class="text-xs text-slate-400">
+                            <strong class="text-slate-200 block">Hospedar este Painel no seu GitHub:</strong>
+                            Envia este sistema completo direto daqui para <code class="text-brand-400">/admin.html</code> no seu repositório.
+                        </div>
+                        <button type="button" onclick="deployAdminPanelToGitHub()" id="deploy-panel-btn"
+                            class="px-3.5 py-2 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-emerald-500/30 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5 flex-shrink-0">
+                            <i data-lucide="cloud-upload" class="w-4 h-4"></i>
+                            <span>Importar Painel p/ GitHub</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cartão 2: Gerador de Link -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+                <div class="flex items-center space-x-2 mb-5">
+                    <i data-lucide="zap" class="w-5 h-5 text-brand-500"></i>
+                    <h2 class="text-lg font-bold text-white">2. Criar ou Atualizar Link Curto</h2>
+                </div>
+
+                <!-- Botões de Preenchimento Rápido para suas Redes + Aba de Adicionar Novas Redes -->
+                <div class="mb-5 bg-slate-950/60 border border-slate-800/80 rounded-xl p-3.5">
+                    <div class="flex items-center justify-between mb-2.5">
+                        <label class="block text-xs font-medium text-slate-300">
+                            Atalhos de Redes Sociais (Preencher Slug + <code class="text-emerald-400">?src=</code>):
+                        </label>
+                        <button type="button" onclick="toggleAddNetworkTab()" class="text-xs text-brand-400 hover:text-brand-300 font-semibold flex items-center space-x-1 bg-brand-500/10 border border-brand-500/20 px-2.5 py-1 rounded-lg transition">
+                            <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
+                            <span>+ Nova Rede</span>
+                        </button>
+                    </div>
+
+                    <!-- Lista Dinâmica de Botões de Redes -->
+                    <div id="networks-buttons-container" class="flex flex-wrap gap-2">
+                        <!-- Renderizado via JavaScript -->
+                    </div>
+
+                    <!-- Aba Expansível para Cadastrar Novos Botões de Redes Sociais -->
+                    <div id="add-network-tab" class="hidden mt-3 pt-3 border-t border-slate-800 space-y-3">
+                        <div class="text-xs font-semibold text-slate-300 flex items-center justify-between">
+                            <span>Cadastrar Novo Botão de Rede / Origem:</span>
+                            <button type="button" onclick="toggleAddNetworkTab()" class="text-slate-500 hover:text-slate-300 text-[11px]">Fechar</button>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
+                            <div class="sm:col-span-2">
+                                <input type="text" id="new-net-emoji" placeholder="🔥" maxlength="4"
+                                    class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-2 text-xs text-center text-white focus:outline-none focus:border-brand-500"
+                                    title="Emoji ou Ícone">
+                            </div>
+                            <div class="sm:col-span-4">
+                                <input type="text" id="new-net-name" placeholder="Nome (ex: Kwai, Threads)"
+                                    class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500">
+                            </div>
+                            <div class="sm:col-span-4">
+                                <input type="text" id="new-net-slug" placeholder="Slug/SRC (ex: kwai)"
+                                    class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-emerald-300 font-mono focus:outline-none focus:border-brand-500">
+                            </div>
+                            <div class="sm:col-span-2">
+                                <button type="button" onclick="addCustomNetwork()"
+                                    class="w-full h-full bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-lg text-xs py-2 px-3 transition flex items-center justify-center">
+                                    Salvar
+                                </button>
+                            </div>
+                        </div>
+                        <p class="text-[11px] text-slate-500">
+                            💡 Dica: Você pode criar botões específicos como <code class="text-slate-300">reels</code>, <code class="text-slate-300">shorts</code>, <code class="text-slate-300">kwai</code>, <code class="text-slate-300">facebook</code> ou <code class="text-slate-300">bio-insta</code>. Para excluir um botão personalizado, clique no "×" ao lado dele.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <!-- Campo Slug -->
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Slug Final (Nome após a barra <code class="text-brand-400">/</code>)</label>
+                        <div class="flex items-center bg-slate-950 border border-slate-800 rounded-xl overflow-hidden focus-within:border-brand-500 transition">
+                            <span id="domain-prefix" class="px-3.5 py-2.5 bg-slate-900 text-slate-400 text-xs sm:text-sm border-r border-slate-800 select-none font-mono">
+                                evoluindonoamor.github.io/
+                            </span>
+                            <input type="text" id="link-slug" oninput="sanitizeSlug(); updatePreviewAndSave();" 
+                                class="w-full bg-transparent px-3.5 py-2.5 text-sm text-white focus:outline-none font-mono"
+                                placeholder="tiktok">
+                        </div>
+                    </div>
+
+                    <!-- Seletor de Base Kiwify (Checkout Direto vs Página de Vendas) -->
+                    <div class="bg-slate-950/70 p-3.5 rounded-xl border border-slate-800/80">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-medium text-slate-400">Seus Links Oficiais Kiwify (Clique para usar como base):</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <button type="button" onclick="setBaseKiwify('https://pay.kiwify.com.br/ALu3sst')" class="text-left p-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 transition group">
+                                <div class="text-xs font-semibold text-emerald-400 flex items-center justify-between">
+                                    <span>💳 Checkout Direto (R$ 37,90)</span>
+                                    <i data-lucide="arrow-up-right" class="w-3.5 h-3.5 opacity-50 group-hover:opacity-100"></i>
+                                </div>
+                                <div class="text-[11px] text-slate-500 truncate mt-0.5">https://pay.kiwify.com.br/ALu3sst</div>
+                            </button>
+                            <button type="button" onclick="setBaseKiwify('https://kiwify.app/r3e8Jhf')" class="text-left p-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 transition group">
+                                <div class="text-xs font-semibold text-blue-400 flex items-center justify-between">
+                                    <span>📄 Página de Vendas</span>
+                                    <i data-lucide="arrow-up-right" class="w-3.5 h-3.5 opacity-50 group-hover:opacity-100"></i>
+                                </div>
+                                <div class="text-[11px] text-slate-500 truncate mt-0.5">https://kiwify.app/r3e8Jhf</div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Campo URL de Destino -->
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Link de Destino Completo (Com seu rastreio <code class="text-emerald-400">?src=</code>)</label>
+                        <input type="url" id="link-target" oninput="updatePreviewAndSave()" 
+                            value="https://pay.kiwify.com.br/ALu3sst?src=tiktok"
+                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-emerald-300 font-mono focus:outline-none focus:border-brand-500 transition"
+                            placeholder="https://pay.kiwify.com.br/ALu3sst?src=tiktok">
+                    </div>
+
+                    <!-- Prévia do Resultado -->
+                    <div class="bg-slate-950 border border-slate-800/90 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                        <div class="overflow-hidden w-full">
+                            <span class="text-[11px] uppercase tracking-wider font-semibold text-slate-500 block">Seu Link Encurtado Final Será:</span>
+                            <div id="live-preview-url" class="text-sm sm:text-base font-bold text-brand-400 font-mono truncate mt-0.5">
+                                https://evoluindonoamor.github.io/tiktok
+                            </div>
+                        </div>
+                        <button type="button" onclick="copyPreviewUrl()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium flex items-center space-x-1.5 flex-shrink-0 border border-slate-700 transition">
+                            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                            <span>Copiar</span>
+                        </button>
+                    </div>
+
+                    <!-- Botão Principal de Ação -->
+                    <button type="button" id="submit-btn" onclick="createOrUpdateShortlink()" 
+                        class="w-full bg-brand-600 hover:bg-brand-500 text-white font-semibold py-3.5 px-6 rounded-xl shadow-lg shadow-brand-600/25 transition flex items-center justify-center space-x-2 text-sm sm:text-base">
+                        <i data-lucide="rocket" class="w-5 h-5"></i>
+                        <span>Criar e Publicar Link no GitHub</span>
+                    </button>
+
+                    <!-- Caixa de Status / Feedback -->
+                    <div id="status-box" class="hidden rounded-xl p-4 text-sm border"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Coluna Direita: Lista de Links Ativos no Repositório (5 colunas) -->
+        <div class="lg:col-span-5 flex flex-col">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex-grow flex flex-col">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-2">
+                        <i data-lucide="folder-git-2" class="w-5 h-5 text-brand-500"></i>
+                        <h2 class="text-base font-bold text-white">Meus Links Criados</h2>
+                    </div>
+                    <button onclick="loadExistingLinks()" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-medium flex items-center space-x-1 transition border border-slate-700" title="Buscar pastas no GitHub">
+                        <i data-lucide="refresh-cw" id="refresh-icon" class="w-3.5 h-3.5"></i>
+                        <span>Sincronizar</span>
+                    </button>
+                </div>
+
+                <p class="text-xs text-slate-400 mb-4">
+                    Abaixo aparecem os links já publicados no seu GitHub e os salvos no seu histórico recente.
+                </p>
+
+                <!-- Lista de Links -->
+                <div id="links-list" class="space-y-2.5 flex-grow overflow-y-auto max-h-[520px] pr-1">
+                    <!-- Preenchido via JavaScript -->
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal de Ajuda Passo a Passo -->
+    <div id="help-modal" class="fixed inset-0 bg-black/75 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="font-bold text-lg text-white flex items-center gap-2">
+                    <i data-lucide="book-open" class="w-5 h-5 text-brand-500"></i>
+                    Como pegar seu Token no GitHub (1 Minuto)
+                </h3>
+                <button onclick="toggleModal('help-modal')" class="text-slate-400 hover:text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="text-xs sm:text-sm text-slate-300 space-y-3 leading-relaxed">
+                <p>Para que este painel consiga criar as pastas (<code class="text-brand-400">/tiktok</code>, <code class="text-brand-400">/instagram</code>) sozinho dentro do seu GitHub sem você precisar mexer em código, o GitHub pede uma chave de permissão chamada <strong>Personal Access Token</strong>.</p>
+                
+                <ol class="list-decimal list-inside space-y-2 bg-slate-950 p-4 rounded-xl border border-slate-800">
+                    <li>Acesse sua conta no GitHub e vá direto neste link oficial: <a href="https://github.com/settings/tokens/new" target="_blank" class="text-brand-400 underline font-semibold">Criar Novo Token (Classic)</a>.</li>
+                    <li>No campo <strong>Note</strong>, digite: <code class="bg-slate-800 px-1.5 py-0.5 rounded">Painel PrettyLinks</code>.</li>
+                    <li>Em <strong>Expiration</strong>, escolha <strong>No expiration</strong> (Para nunca vencer).</li>
+                    <li>Logo abaixo, marque a primeira caixinha chamada <strong><code class="text-emerald-400">repo</code></strong> (Full control of private repositories).</li>
+                    <li>Role até o fim da página e clique no botão verde <strong>Generate token</strong>.</li>
+                    <li>Copie o código gerado que começa com <code class="text-amber-400">ghp_...</code> e cole no campo <strong>Token de Acesso</strong> aqui do painel!</li>
+                </ol>
+
+                <div class="bg-emerald-950/40 border border-emerald-700/40 text-emerald-300 p-3 rounded-xl text-xs">
+                    💡 <strong>Dica de Ouro:</strong> Você só precisa fazer isso uma única vez! O painel salva esse Token no seu navegador para que você crie quantos links quiser em 1 clique.
+                </div>
+            </div>
+            <div class="pt-2 flex justify-end">
+                <button onclick="toggleModal('help-modal')" class="px-5 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-sm font-semibold">
+                    Entendi, vamos lá!
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notificação Toast Flutuante -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-slate-800 border border-slate-700 text-white px-4 py-3 rounded-xl shadow-2xl text-sm font-medium transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center space-x-2">
+        <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+        <span id="toast-msg">Copiado com sucesso!</span>
+    </div>
+
+    <!-- Rodapé -->
+    <footer class="border-t border-slate-900 py-4 text-center text-xs text-slate-600">
+        Sistema Encurtador Autônomo via GitHub Pages API • Atrito Zero para Vendas Kiwify
+    </footer>
+
+    <script>
+        // Inicializa ícones
+        lucide.createIcons();
+
+        // Chaves do LocalStorage
+        const STORAGE_KEYS = {
+            OWNER: 'pl_gh_owner',
+            REPO: 'pl_gh_repo',
+            TOKEN: 'pl_gh_token',
+            HISTORY: 'pl_links_history',
+            NETWORKS: 'pl_custom_networks'
+        };
+
+        // Redes padrão iniciais
+        const DEFAULT_NETWORKS = [
+            { emoji: '🎵', name: 'TikTok', slug: 'tiktok', isDefault: true },
+            { emoji: '📸', name: 'Instagram', slug: 'instagram', isDefault: true },
+            { emoji: '▶️', name: 'YouTube', slug: 'youtube', isDefault: true },
+            { emoji: '📌', name: 'Pinterest', slug: 'pinterest', isDefault: true },
+            { emoji: '💬', name: 'WhatsApp', slug: 'whatsapp', isDefault: true }
+        ];
+
+        // Carrega dados salvos ao abrir a página
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedOwner = localStorage.getItem(STORAGE_KEYS.OWNER);
+            const savedRepo = localStorage.getItem(STORAGE_KEYS.REPO);
+            const savedToken = localStorage.getItem(STORAGE_KEYS.TOKEN);
+
+            if (savedOwner) document.getElementById('gh-owner').value = savedOwner;
+            if (savedRepo) document.getElementById('gh-repo').value = savedRepo;
+            if (savedToken) {
+                document.getElementById('gh-token').value = savedToken;
+            }
+
+            renderNetworksButtons();
+            document.getElementById('link-slug').value = 'tiktok';
+            updatePreviewAndSave();
+            renderSavedHistory();
+
+            if (savedToken && savedOwner && savedRepo) {
+                loadExistingLinks();
+            }
+        });
+
+        // Obtém lista de redes (Padrão + Personalizadas pelo usuário)
+        function getNetworksList() {
+            const saved = localStorage.getItem(STORAGE_KEYS.NETWORKS);
+            if (!saved) return DEFAULT_NETWORKS;
+            try {
+                const parsed = JSON.parse(saved);
+                return Array.isArray(parsed) && parsed.length > 0 ? parsed : DEFAULT_NETWORKS;
+            } catch (e) {
+                return DEFAULT_NETWORKS;
+            }
+        }
+
+        // Renderiza os botões de atalho de redes sociais
+        function renderNetworksButtons() {
+            const container = document.getElementById('networks-buttons-container');
+            const networks = getNetworksList();
+
+            container.innerHTML = networks.map(net => `
+                <div class="inline-flex items-center bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-brand-500 rounded-lg transition overflow-hidden group">
+                    <button type="button" onclick="setQuickPreset('${net.slug}')" class="px-3 py-1.5 text-xs font-medium text-slate-200 group-hover:text-white flex items-center space-x-1.5">
+                        <span>${net.emoji || '🔗'}</span>
+                        <span>${net.name}</span>
+                    </button>
+                    ${!net.isDefault ? `
+                        <button type="button" onclick="removeCustomNetwork('${net.slug}')" class="pr-2 pl-1 py-1.5 text-slate-500 hover:text-rose-400 text-xs font-bold transition" title="Remover atalho">
+                            ×
+                        </button>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        // Abre/Fecha a aba de adicionar nova rede social
+        function toggleAddNetworkTab() {
+            const tab = document.getElementById('add-network-tab');
+            tab.classList.toggle('hidden');
+            if (!tab.classList.contains('hidden')) {
+                document.getElementById('new-net-name').focus();
+            }
+        }
+
+        // Adiciona um novo botão de rede social personalizado
+        function addCustomNetwork() {
+            const emojiInput = document.getElementById('new-net-emoji');
+            const nameInput = document.getElementById('new-net-name');
+            const slugInput = document.getElementById('new-net-slug');
+
+            const emoji = emojiInput.value.trim() || '🔗';
+            const name = nameInput.value.trim();
+            let slug = (slugInput.value.trim() || name)
+                .toLowerCase()
+                .replace(/\s+/g, '-')
+                .replace(/[^a-z0-9-_]/g, '');
+
+            if (!name || !slug) {
+                showToast('Preencha o nome da rede social!');
+                return;
+            }
+
+            const networks = getNetworksList();
+            const exists = networks.some(n => n.slug === slug);
+            if (exists) {
+                showToast('Essa Slug de rede já existe nos atalhos!');
+                return;
+            }
+
+            networks.push({ emoji, name, slug, isDefault: false });
+            localStorage.setItem(STORAGE_KEYS.NETWORKS, JSON.stringify(networks));
+
+            emojiInput.value = '';
+            nameInput.value = '';
+            slugInput.value = '';
+            document.getElementById('add-network-tab').classList.add('hidden');
+
+            renderNetworksButtons();
+            setQuickPreset(slug);
+            showToast(`Botão "${name}" adicionado com sucesso!`);
+        }
+
+        // Remove um botão personalizado
+        function removeCustomNetwork(slug) {
+            let networks = getNetworksList();
+            networks = networks.filter(n => n.slug !== slug);
+            localStorage.setItem(STORAGE_KEYS.NETWORKS, JSON.stringify(networks));
+            renderNetworksButtons();
+            showToast('Atalho removido!');
+        }
+
+        // Alterna visibilidade da seção de configuração
+        function toggleConfigSection() {
+            const section = document.getElementById('config-section');
+            section.classList.toggle('hidden');
+        }
+
+        // Mostrar/ocultar senha do Token
+        function toggleTokenVisibility() {
+            const input = document.getElementById('gh-token');
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+
+        // Abre/Fecha Modal
+        function toggleModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.toggle('hidden');
+        }
+
+        // Mostra notificação rápida (Toast)
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2800);
+        }
+
+        // Limpa caracteres inválidos do Slug (deixa apenas letras, números, hifens e underscores)
+        function sanitizeSlug() {
+            const slugInput = document.getElementById('link-slug');
+            slugInput.value = slugInput.value
+                .toLowerCase()
+                .replace(/\s+/g, '-')
+                .replace(/[^a-z0-9-_]/g, '');
+        }
+
+        // Atualiza a prévia do link final e salva configs no navegador
+        function updatePreviewAndSave() {
+            const owner = document.getElementById('gh-owner').value.trim() || 'evoluindonoamor';
+            const repo = document.getElementById('gh-repo').value.trim() || `${owner}.github.io`;
+            const token = document.getElementById('gh-token').value.trim();
+            const slug = document.getElementById('link-slug').value.trim() || 'seu-link';
+
+            // Salva no navegador
+            localStorage.setItem(STORAGE_KEYS.OWNER, owner);
+            localStorage.setItem(STORAGE_KEYS.REPO, repo);
+            if (token) localStorage.setItem(STORAGE_KEYS.TOKEN, token);
+
+            // Verifica se é um repositório raiz (.github.io) ou projeto secundário
+            let baseDomain = `${owner.toLowerCase()}.github.io`;
+            if (repo.toLowerCase() !== `${owner.toLowerCase()}.github.io`) {
+                baseDomain = `${owner.toLowerCase()}.github.io/${repo}`;
+            }
+
+            document.getElementById('domain-prefix').innerText = `${baseDomain}/`;
+            document.getElementById('live-preview-url').innerText = `https://${baseDomain}/${slug}`;
+
+            // Atualiza selo de status no topo
+            const badge = document.getElementById('connection-badge');
+            if (token && owner && repo) {
+                badge.className = "inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+                badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 mr-2"></span>Pronto para Publicar`;
+            } else {
+                badge.className = "inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20";
+                badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400 mr-2 animate-pulse"></span>Falta Inserir o Token`;
+            }
+        }
+
+        // Preenche rapidamente para a rede social escolhida mantendo o link base da Kiwify
+        function setQuickPreset(network) {
+            document.getElementById('link-slug').value = network;
+            const targetInput = document.getElementById('link-target');
+            let currentUrl = targetInput.value.trim() || 'https://pay.kiwify.com.br/ALu3sst';
+
+            try {
+                const parsed = new URL(currentUrl);
+                parsed.searchParams.set('src', network);
+                targetInput.value = parsed.toString();
+            } catch (e) {
+                targetInput.value = `https://pay.kiwify.com.br/ALu3sst?src=${network}`;
+            }
+
+            updatePreviewAndSave();
+            showToast(`Configurado para ${network.toUpperCase()}!`);
+        }
+
+        // Alterna entre o link de Checkout Direto e a Página de Vendas da Kiwify mantendo o ?src= atual
+        function setBaseKiwify(baseUrl) {
+            const slug = document.getElementById('link-slug').value.trim() || 'tiktok';
+            document.getElementById('link-target').value = `${baseUrl}?src=${slug}`;
+            updatePreviewAndSave();
+            showToast('Link base da Kiwify atualizado!');
+        }
+
+        // Copia o link final da prévia
+        function copyPreviewUrl() {
+            const url = document.getElementById('live-preview-url').innerText;
+            const tempInput = document.createElement('input');
+            tempInput.value = url;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            showToast('Link curto copiado para a área de transferência!');
+        }
+
+        // Auto-importa este próprio arquivo admin.html direto para o repositório GitHub
+        async function deployAdminPanelToGitHub() {
+            const owner = document.getElementById('gh-owner').value.trim();
+            const repo = document.getElementById('gh-repo').value.trim();
+            const token = document.getElementById('gh-token').value.trim();
+            const btn = document.getElementById('deploy-panel-btn');
+
+            if (!owner || !repo || !token) {
+                showStatus('error', '⚠️ Para importar automaticamente para o GitHub, preencha seu Token acima primeiro.');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = `<span>⏳ Enviando p/ GitHub...</span>`;
+
+            try {
+                // Captura o código-fonte limpo deste painel sem expor o token
+                const cloneDoc = document.documentElement.cloneNode(true);
+                const tokenField = cloneDoc.querySelector('#gh-token');
+                if (tokenField) tokenField.value = '';
+
+                const fullHtml = '<!DOCTYPE html>\n' + cloneDoc.outerHTML;
+                const contentBase64 = btoa(unescape(encodeURIComponent(fullHtml)));
+                const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/admin.html`;
+
+                let existingSha = null;
+                const checkRes = await fetch(apiUrl, {
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+                if (checkRes.ok) {
+                    const fileData = await checkRes.json();
+                    existingSha = fileData.sha;
+                }
+
+                const payload = {
+                    message: 'Importando/Atualizando Painel PrettyLinks (admin.html)',
+                    content: contentBase64
+                };
+                if (existingSha) payload.sha = existingSha;
+
+                const putRes = await fetch(apiUrl, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (putRes.ok || putRes.status === 201) {
+                    const panelUrl = `https://${owner.toLowerCase()}.github.io/admin.html`;
+                    showStatus('success', `✅ <strong>Painel Importado com Sucesso!</strong> Seu sistema completo já está salvo lá no seu GitHub em: <a href="${panelUrl}" target="_blank" class="underline font-bold">${panelUrl}</a>`);
+                    showToast('Painel enviado para o GitHub!');
+                } else {
+                    const err = await putRes.json();
+                    showStatus('error', `❌ Erro ao importar painel: ${err.message}`);
+                }
+            } catch (e) {
+                showStatus('error', `❌ Erro de conexão: ${e.message}`);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i data-lucide="cloud-upload" class="w-4 h-4"></i><span>Importar Painel p/ GitHub</span>`;
+                lucide.createIcons();
+            }
+        }
+
+        // Mostra mensagem de status na caixa abaixo do botão
+        function showStatus(type, htmlContent) {
+            const box = document.getElementById('status-box');
+            box.classList.remove('hidden', 'bg-emerald-950/60', 'border-emerald-600/50', 'text-emerald-200', 'bg-rose-950/60', 'border-rose-600/50', 'text-rose-200', 'bg-blue-950/60', 'border-blue-600/50', 'text-blue-200');
+            
+            if (type === 'success') {
+                box.classList.add('bg-emerald-950/60', 'border-emerald-600/50', 'text-emerald-200');
+            } else if (type === 'error') {
+                box.classList.add('bg-rose-950/60', 'border-rose-600/50', 'text-rose-200');
+            } else {
+                box.classList.add('bg-blue-950/60', 'border-blue-600/50', 'text-blue-200');
+            }
+            box.innerHTML = htmlContent;
+        }
+
+        // Função Principal: Cria ou Atualiza a pasta + index.html lá no GitHub via API Oficial
+        async function createOrUpdateShortlink() {
+            const owner = document.getElementById('gh-owner').value.trim();
+            const repo = document.getElementById('gh-repo').value.trim();
+            const token = document.getElementById('gh-token').value.trim();
+            const slug = document.getElementById('link-slug').value.trim().replace(/^\/+|\/+$/g, '');
+            const targetUrl = document.getElementById('link-target').value.trim();
+            const submitBtn = document.getElementById('submit-btn');
+
+            if (!owner || !repo || !token) {
+                document.getElementById('config-section').classList.remove('hidden');
+                showStatus('error', '⚠️ <strong>Atenção:</strong> Preencha seu Usuário, Repositório e cole seu <strong>Token do GitHub</strong> no Passo 1 acima.');
+                return;
+            }
+
+            if (!slug || !targetUrl) {
+                showStatus('error', '⚠️ Preencha a Slug final (ex: tiktok) e o Link de Destino da Kiwify.');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-60', 'cursor-not-allowed');
+            showStatus('loading', '⏳ Conectando ao GitHub e criando seu link curto instantâneo...');
+
+            // Template HTML ultra-rápido de redirecionamento que ficará salvo em /{slug}/index.html
+            const redirectHtml = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Redirecionando...</title>
+    <meta http-equiv="refresh" content="0; url=${targetUrl}">
+    <script>
+        window.location.replace(${JSON.stringify(targetUrl)});
+    <\/script>
+    <style>
+        body { background: #0f172a; color: #94a3b8; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; font-size: 14px; }
+        a { color: #f43f5e; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <p>Redirecionando de forma segura... <a href="${targetUrl}">Clique aqui</a> se não abrir automaticamente.</p>
+</body>
+</html>`;
+
+            const contentBase64 = btoa(unescape(encodeURIComponent(redirectHtml)));
+            const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${slug}/index.html`;
+
+            try {
+                // 1. Verifica se o link já existe no repositório (para pegar o código SHA e permitir atualizar o destino se você quiser!)
+                let existingSha = null;
+                const checkRes = await fetch(apiUrl, {
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                if (checkRes.ok) {
+                    const existingFile = await checkRes.json();
+                    existingSha = existingFile.sha;
+                }
+
+                // 2. Envia o arquivo novo (ou atualiza o existente)
+                const payload = {
+                    message: existingSha ? `Atualizando link curto: /${slug}` : `Criando link curto: /${slug}`,
+                    content: contentBase64
+                };
+                if (existingSha) payload.sha = existingSha;
+
+                const putRes = await fetch(apiUrl, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (putRes.ok || putRes.status === 201) {
+                    const finalShortUrl = document.getElementById('live-preview-url').innerText;
+                    saveToLocalHistory(slug, finalShortUrl, targetUrl);
+                    renderSavedHistory();
+
+                    showStatus('success', `
+                        <div class="space-y-2">
+                            <div class="font-bold text-base">✅ ${existingSha ? 'Link Atualizado' : 'Link Criado'} com Sucesso!</div>
+                            <p class="text-xs opacity-90">Seu link já foi enviado para o GitHub Pages (leva cerca de 30 a 60 segundos para ficar ativo mundialmente):</p>
+                            <div class="bg-slate-950/90 p-2.5 rounded-lg border border-emerald-500/30 flex items-center justify-between">
+                                <a href="${finalShortUrl}" target="_blank" class="font-mono font-bold text-emerald-300 underline truncate">${finalShortUrl}</a>
+                                <button onclick="navigator.clipboard.writeText('${finalShortUrl}'); showToast('Link copiado!');" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-xs font-semibold ml-2">Copiar Link</button>
+                            </div>
+                        </div>
+                    `);
+                } else {
+                    const errData = await putRes.json();
+                    showStatus('error', `❌ <strong>Erro retornado pelo GitHub:</strong> ${errData.message || 'Verifique se o seu Token tem a permissão "repo" marcada e se o repositório existe.'}`);
+                }
+            } catch (error) {
+                showStatus('error', `❌ <strong>Falha de conexão:</strong> ${error.message}`);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+            }
+        }
+
+        // Salva link criado no histórico local para fácil consulta
+        function saveToLocalHistory(slug, shortUrl, targetUrl) {
+            let history = JSON.parse(localStorage.getItem(STORAGE_KEYS.HISTORY) || '[]');
+            history = history.filter(item => item.slug !== slug);
+            history.unshift({
+                slug,
+                shortUrl,
+                targetUrl,
+                updatedAt: new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
+            });
+            localStorage.setItem(STORAGE_KEYS.HISTORY, JSON.stringify(history));
+        }
+
+        // Sincroniza pastas existentes diretamente do repositório GitHub
+        async function loadExistingLinks() {
+            const owner = document.getElementById('gh-owner').value.trim();
+            const repo = document.getElementById('gh-repo').value.trim();
+            const token = document.getElementById('gh-token').value.trim();
+            const icon = document.getElementById('refresh-icon');
+
+            if (!owner || !repo || !token) {
+                renderSavedHistory();
+                return;
+            }
+
+            icon.classList.add('animate-spin');
+            try {
+                const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents`, {
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                if (res.ok) {
+                    const items = await res.json();
+                    const dirs = items.filter(i => i.type === 'dir' && !i.name.startsWith('.'));
+                    
+                    let baseDomain = `${owner.toLowerCase()}.github.io`;
+                    if (repo.toLowerCase() !== `${owner.toLowerCase()}.github.io`) {
+                        baseDomain = `${owner.toLowerCase()}.github.io/${repo}`;
+                    }
+
+                    let history = JSON.parse(localStorage.getItem(STORAGE_KEYS.HISTORY) || '[]');
+
+                    dirs.forEach(dir => {
+                        const exists = history.some(h => h.slug === dir.name);
+                        if (!exists) {
+                            history.push({
+                                slug: dir.name,
+                                shortUrl: `https://${baseDomain}/${dir.name}`,
+                                targetUrl: 'Pasta ativa no seu GitHub',
+                                updatedAt: 'Sincronizado'
+                            });
+                        }
+                    });
+
+                    localStorage.setItem(STORAGE_KEYS.HISTORY, JSON.stringify(history));
+                    renderSavedHistory();
+                    showToast('Links sincronizados com o GitHub!');
+                }
+            } catch (e) {
+                console.warn('Erro ao sincronizar pastas:', e);
+            } finally {
+                icon.classList.remove('animate-spin');
+            }
+        }
+
+        // Renderiza a lista de links na coluna da direita
+        function renderSavedHistory() {
+            const listEl = document.getElementById('links-list');
+            const history = JSON.parse(localStorage.getItem(STORAGE_KEYS.HISTORY) || '[]');
+
+            if (history.length === 0) {
+                listEl.innerHTML = `
+                    <div class="text-center py-12 px-4 border border-dashed border-slate-800 rounded-xl text-slate-500">
+                        <i data-lucide="link" class="w-8 h-8 mx-auto mb-2 opacity-40"></i>
+                        <p class="text-xs font-medium">Nenhum link criado ainda.</p>
+                        <p class="text-[11px] mt-1">Escolha um atalho ao lado (ex: TikTok) e clique em Publicar!</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            listEl.innerHTML = history.map(item => `
+                <div class="bg-slate-950 border border-slate-800/90 hover:border-slate-700 rounded-xl p-3.5 transition group">
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-brand-500/10 text-brand-400 border border-brand-500/20 font-mono">
+                            /${item.slug}
+                        </span>
+                        <div class="flex items-center space-x-1">
+                            <button onclick="navigator.clipboard.writeText('${item.shortUrl}'); showToast('Copiado: ${item.shortUrl}');" 
+                                class="px-2.5 py-1 bg-slate-800 hover:bg-brand-600 text-slate-200 hover:text-white rounded-lg text-xs font-medium transition flex items-center space-x-1">
+                                <i data-lucide="copy" class="w-3 h-3"></i>
+                                <span>Copiar</span>
+                            </button>
+                            <a href="${item.shortUrl}" target="_blank" class="p-1.5 text-slate-400 hover:text-white bg-slate-900 rounded-lg" title="Testar Link">
+                                <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-xs font-mono text-slate-300 truncate">${item.shortUrl}</div>
+                    <div class="mt-1 text-[11px] text-slate-500 truncate">↳ Destino: ${item.targetUrl}</div>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+        }
+    </script>
+</body>
+</html>
