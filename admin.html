@@ -3,14 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciador de Links | Evoluindo no Amor</title>
+    <title>PrettyLinks GitHub | Evoluindo no Amor</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
-                extend: { colors: { brand: { 50: '#fff1f2', 100: '#ffe4e6', 500: '#f43f5e', 600: '#e11d48', 700: '#be123c' } } }
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#fff1f2',
+                            100: '#ffe4e6',
+                            400: '#fb7185',
+                            500: '#f43f5e',
+                            600: '#e11d48',
+                            700: '#be123c'
+                        }
+                    }
+                }
             }
         }
     </script>
@@ -19,27 +30,38 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; border-radius: 8px; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 8px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-brand-500 selection:text-white">
 
     <!-- Header -->
-    <header class="border-b border-slate-800 bg-slate-900/60 sticky top-0 z-30 backdrop-blur-md">
+    <header class="border-b border-slate-800/80 bg-slate-900/70 sticky top-0 z-30 backdrop-blur-md">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <div class="bg-brand-600 p-2 rounded-xl shadow-lg shadow-brand-600/30">
+                <div class="bg-gradient-to-br from-brand-500 to-brand-700 p-2.5 rounded-xl shadow-lg shadow-brand-600/30">
                     <i data-lucide="link-2" class="w-6 h-6 text-white"></i>
                 </div>
                 <div>
-                    <h1 class="font-bold text-lg sm:text-xl tracking-tight text-white">PrettyLinks <span class="text-brand-500">GitHub</span></h1>
-                    <p class="text-xs text-slate-400">Painel Oficial • Projeto Casamento Feliz</p>
+                    <h1 class="font-bold text-lg sm:text-xl tracking-tight text-white flex items-center gap-2">
+                        PrettyLinks <span class="text-brand-500">GitHub</span>
+                    </h1>
+                    <p class="text-xs text-slate-400">Painel Oficial • Evoluindo no Amor</p>
                 </div>
             </div>
+
             <div class="flex items-center space-x-3">
-                <span id="connection-badge" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                <span id="connection-badge" class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
                     <span class="w-2 h-2 rounded-full bg-amber-400 mr-2 animate-pulse"></span>
-                    Configuração Pendente
+                    Aguardando Token
                 </span>
+                <button type="button" onclick="toggleHelpModal()" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition" title="Ajuda e Solução de Erros">
+                    <i data-lucide="help-circle" class="w-5 h-5"></i>
+                </button>
             </div>
         </div>
     </header>
@@ -47,175 +69,512 @@
     <!-- Main Content -->
     <main class="max-w-6xl mx-auto px-4 sm:px-6 py-8 flex-grow w-full grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        <!-- Left Column (Configs & Generator) -->
+        <!-- Coluna da Esquerda: Configurações + Criador/Editor de Links -->
         <div class="lg:col-span-7 space-y-6">
             
-            <!-- Card 1: GitHub Connection -->
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+            <!-- Card 1: Conexão com GitHub -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl">
                 <div class="flex items-center justify-between mb-4">
                     <div class="flex items-center space-x-2">
                         <i data-lucide="key-round" class="w-5 h-5 text-brand-500"></i>
-                        <h2 class="text-base font-semibold text-white">1. Conexão com seu GitHub</h2>
+                        <h2 class="text-base font-bold text-white">1. Conexão com seu GitHub</h2>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <button type="button" onclick="resetToDefaultRepo()" class="text-xs text-brand-400 hover:text-brand-300 underline" title="Corrige caso o navegador tenha salvado um nome antigo">
+                            Restaurar Padrão
+                        </button>
+                        <button type="button" onclick="toggleConfigSection()" class="text-xs text-slate-400 hover:text-white underline">
+                            Mostrar/Ocultar
+                        </button>
                     </div>
                 </div>
 
                 <div id="config-section" class="space-y-4">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-medium text-slate-400 mb-1">Usuário GitHub</label>
-                            <input type="text" id="gh-owner" value="evoluindonoamor" oninput="updatePreviewAndSave()" 
-                                class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500 transition">
+                            <label class="block text-xs font-medium text-slate-400 mb-1.5">Usuário ou Organização GitHub</label>
+                            <input type="text" id="gh-owner" value="evoluindonoamor" oninput="onConfigChange()" 
+                                class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white font-mono focus:outline-none focus:border-brand-500 transition">
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-slate-400 mb-1">Nome do Repositório</label>
-                            <input type="text" id="gh-repo" value="evoluindonoamor.github.io" oninput="updatePreviewAndSave()" 
-                                class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500 transition">
+                            <label class="block text-xs font-medium text-slate-400 mb-1.5">Nome do Repositório</label>
+                            <input type="text" id="gh-repo" value="evoluindonoamor.github.io" oninput="onConfigChange()" 
+                                class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white font-mono focus:outline-none focus:border-brand-500 transition">
                         </div>
                     </div>
+
                     <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1">Token de Acesso Pessoal</label>
-                        <input type="password" id="gh-token" oninput="updatePreviewAndSave()" 
-                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500 transition"
-                            placeholder="ghp_...">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label class="block text-xs font-medium text-slate-400">Token de Acesso Pessoal (Senha API do GitHub)</label>
+                            <button type="button" onclick="toggleHelpModal()" class="text-xs text-slate-400 hover:text-brand-400 flex items-center gap-1">
+                                <i data-lucide="info" class="w-3.5 h-3.5"></i> Onde pego meu Token?
+                            </button>
+                        </div>
+                        <div class="relative">
+                            <input type="password" id="gh-token" oninput="onConfigChange()" 
+                                class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-3.5 pr-10 py-2.5 text-sm text-white font-mono focus:outline-none focus:border-brand-500 transition"
+                                placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+                            <button type="button" onclick="toggleTokenVisibility()" class="absolute right-3 top-2.5 text-slate-400 hover:text-white">
+                                <i id="token-eye-icon" data-lucide="eye" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                        <p class="text-[11px] text-emerald-400/90 mt-1.5 flex items-center gap-1">
+                            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                            Seu token fica salvo apenas na memória deste seu navegador (LocalStorage).
+                        </p>
+                    </div>
+
+                    <!-- Auto-Deploy do Painel -->
+                    <div class="pt-3 border-t border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-200">Hospedar / Atualizar este Painel no GitHub:</p>
+                            <p class="text-[11px] text-slate-400">Envia este sistema atualizado direto para <code class="text-slate-300">/admin.html</code> no seu repositório.</p>
+                        </div>
+                        <button type="button" id="deploy-panel-btn" onclick="deployAdminPanelToGitHub()" class="shrink-0 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-semibold text-xs px-4 py-2.5 rounded-xl transition flex items-center justify-center gap-2">
+                            <i data-lucide="cloud-upload" class="w-4 h-4"></i>
+                            <span>Importar Painel p/ GitHub</span>
+                        </button>
                     </div>
                 </div>
             </div>
 
-            <!-- Card 2: Link Generator -->
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden">
-                <div class="flex items-center space-x-2 mb-5">
-                    <i data-lucide="zap" class="w-5 h-5 text-brand-500"></i>
-                    <h2 class="text-lg font-bold text-white">2. Criar Link Curto</h2>
+            <!-- Card 2: Gerador e Atualizador de Links -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+                <div class="flex items-center justify-between mb-5">
+                    <div class="flex items-center space-x-2">
+                        <i data-lucide="zap" class="w-5 h-5 text-brand-500"></i>
+                        <h2 id="form-mode-title" class="text-lg font-bold text-white">2. Criar ou Atualizar Link Curto</h2>
+                    </div>
+                    <span id="edit-mode-badge" class="hidden px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/30 flex items-center gap-1.5">
+                        <i data-lucide="pencil" class="w-3.5 h-3.5"></i> Editando Link
+                        <button type="button" onclick="cancelEditMode()" class="ml-1 text-slate-400 hover:text-white" title="Cancelar edição">×</button>
+                    </span>
                 </div>
 
-                <!-- Redes Sociais (Com opção de excluir) -->
-                <div class="mb-5 bg-slate-950/60 border border-slate-800/80 rounded-xl p-3.5">
-                    <div class="flex items-center justify-between mb-2.5">
-                        <label class="block text-xs font-medium text-slate-300">Atalhos de Redes Sociais:</label>
-                        <button type="button" onclick="toggleAddNetworkTab()" class="text-xs text-brand-400 hover:text-brand-300 font-semibold flex items-center space-x-1 bg-brand-500/10 border border-brand-500/20 px-2.5 py-1 rounded-lg">
-                            <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> <span>+ Nova Rede</span>
+                <!-- Seção: Atalhos de Redes Sociais -->
+                <div class="mb-5 bg-slate-950/70 border border-slate-800/90 rounded-xl p-4">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                        <label class="block text-xs font-medium text-slate-300">
+                            Atalhos de Redes Sociais (Preencher Slug + <span class="text-emerald-400 font-mono">?src=</span>):
+                        </label>
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="restoreDefaultNetworks()" class="text-[11px] text-slate-400 hover:text-slate-200 underline" title="Restaurar redes padrão">
+                                Restaurar
+                            </button>
+                            <button type="button" onclick="toggleAddNetworkTab()" class="text-xs text-brand-400 hover:text-brand-300 font-semibold flex items-center space-x-1 bg-brand-500/10 border border-brand-500/20 px-2.5 py-1 rounded-lg transition">
+                                <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
+                                <span>+ Nova Rede</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Botões de Redes Sociais Renderizados via JS -->
+                    <div id="networks-buttons-container" class="flex flex-wrap gap-2"></div>
+
+                    <!-- Aba para Cadastrar Nova Rede (Completa ou Abreviada) -->
+                    <div id="add-network-tab" class="hidden mt-3.5 pt-3.5 border-t border-slate-800 space-y-3">
+                        <p class="text-[11px] text-slate-400">Adicione o nome completo ou abreviado (ex: Nome <strong class="text-slate-200">Instagram</strong> e Slug <strong class="text-slate-200">ig</strong> ou <strong class="text-slate-200">instagram</strong>):</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
+                            <div class="sm:col-span-2">
+                                <input type="text" id="new-net-emoji" placeholder="Emoji (🔗)" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-2 text-xs text-white text-center focus:border-brand-500 outline-none">
+                            </div>
+                            <div class="sm:col-span-4">
+                                <input type="text" id="new-net-name" placeholder="Nome (ex: Insta / Kwai)" oninput="autoFillNewNetSlug()" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:border-brand-500 outline-none">
+                            </div>
+                            <div class="sm:col-span-3">
+                                <input type="text" id="new-net-slug" placeholder="Slug (ex: ig / kwai)" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-emerald-400 font-mono focus:border-brand-500 outline-none">
+                            </div>
+                            <div class="sm:col-span-3">
+                                <button type="button" onclick="addCustomNetwork()" class="w-full h-full bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-lg text-xs py-2 px-3 transition">
+                                    Salvar Rede
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Seção: Seus Links Oficiais Kiwify (Checkout vs Página de Vendas) -->
+                <div class="mb-5 bg-slate-950/70 border border-slate-800/90 rounded-xl p-4">
+                    <label class="block text-xs font-medium text-slate-300 mb-2.5">
+                        Seus Links Oficiais Kiwify (Clique para usar como base):
+                    </label>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <!-- Opção 1: Checkout Direto -->
+                        <button type="button" id="base-btn-checkout" onclick="selectBaseUrl('https://pay.kiwify.com.br/ALu3sst', 'checkout')" 
+                            class="text-left p-3 rounded-xl border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/15 transition group relative">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                                    💳 Checkout Direto (R$ 37,90)
+                                </span>
+                                <i data-lucide="arrow-up-right" class="w-3.5 h-3.5 text-emerald-400"></i>
+                            </div>
+                            <div class="text-[11px] text-slate-400 font-mono truncate mt-1">
+                                https://pay.kiwify.com.br/ALu3sst
+                            </div>
+                        </button>
+
+                        <!-- Opção 2: Página de Vendas -->
+                        <button type="button" id="base-btn-sales" onclick="selectBaseUrl('https://kiwify.app/r3e8Jhf', 'sales')" 
+                            class="text-left p-3 rounded-xl border border-slate-800 bg-slate-900/60 hover:bg-slate-800/80 transition group relative">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-sky-400 flex items-center gap-1.5">
+                                    📄 Página de Vendas
+                                </span>
+                                <i data-lucide="arrow-up-right" class="w-3.5 h-3.5 text-slate-400 group-hover:text-sky-400"></i>
+                            </div>
+                            <div class="text-[11px] text-slate-400 font-mono truncate mt-1">
+                                https://kiwify.app/r3e8Jhf
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Campos: Slug e URL Final -->
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1.5">
+                            Slug Final (Nome curto após a barra)
+                        </label>
+                        <div class="flex items-center bg-slate-950 border border-slate-800 rounded-xl overflow-hidden focus-within:border-brand-500 transition">
+                            <span id="domain-prefix" class="px-3.5 py-2.5 bg-slate-900 text-slate-400 text-xs sm:text-sm border-r border-slate-800 font-mono select-none">
+                                evoluindonoamor.github.io/
+                            </span>
+                            <input type="text" id="link-slug" value="tiktok" oninput="onSlugInput()" 
+                                class="w-full bg-transparent px-3.5 py-2.5 text-sm text-white font-mono outline-none" 
+                                placeholder="ex: tiktok, ig, yt">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1.5">
+                            Link de Destino Completo (Com seu rastreio <span class="text-emerald-400 font-mono">?src=</span>)
+                        </label>
+                        <input type="url" id="link-target" value="https://pay.kiwify.com.br/ALu3sst?src=tiktok" oninput="updateLivePreview()" 
+                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-emerald-400 font-mono focus:border-brand-500 outline-none transition"
+                            placeholder="https://pay.kiwify.com.br/ALu3sst?src=tiktok">
+                    </div>
+
+                    <!-- Caixa de Preview do Link Encurtado -->
+                    <div class="bg-slate-950 border border-slate-800/90 rounded-xl p-3.5 flex items-center justify-between gap-3">
+                        <div class="overflow-hidden">
+                            <span class="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                                SEU LINK ENCURTADO FINAL SERÁ:
+                            </span>
+                            <div id="final-shortlink-preview" class="text-sm sm:text-base font-mono font-bold text-white truncate mt-0.5">
+                                https://evoluindonoamor.github.io/tiktok
+                            </div>
+                        </div>
+                        <button type="button" onclick="copyPreviewLink()" class="shrink-0 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold border border-slate-700 transition flex items-center gap-1.5">
+                            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                            <span>Copiar</span>
                         </button>
                     </div>
 
-                    <div id="networks-buttons-container" class="flex flex-wrap gap-2">
-                        <!-- Renderizado via JS -->
-                    </div>
-
-                    <!-- Aba Cadastrar Nova Rede -->
-                    <div id="add-network-tab" class="hidden mt-3 pt-3 border-t border-slate-800 space-y-3">
-                        <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
-                            <div class="sm:col-span-3">
-                                <input type="text" id="new-net-emoji" placeholder="Emoji" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-2 text-xs text-white">
-                            </div>
-                            <div class="sm:col-span-5">
-                                <input type="text" id="new-net-name" placeholder="Nome (ex: Kwai)" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white">
-                            </div>
-                            <div class="sm:col-span-4">
-                                <button type="button" onclick="addCustomNetwork()" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-lg text-xs py-2 px-3">Adicionar</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-medium text-slate-300 mb-1">Slug Final (Nome após a barra)</label>
-                        <div class="flex items-center bg-slate-950 border border-slate-800 rounded-xl overflow-hidden focus-within:border-brand-500">
-                            <span id="domain-prefix" class="px-3 py-2.5 bg-slate-900 text-slate-400 text-xs sm:text-sm border-r border-slate-800 font-mono">
-                                evoluindonoamor.github.io/
-                            </span>
-                            <input type="text" id="link-slug" oninput="sanitizeSlug(); updatePreviewAndSave();" class="w-full bg-transparent px-3.5 py-2.5 text-sm text-white font-mono outline-none" placeholder="tiktok">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-medium text-slate-300 mb-1">Link Kiwify (Com rastreio)</label>
-                        <input type="url" id="link-target" oninput="updatePreviewAndSave()" value="https://pay.kiwify.com.br/ALu3sst?src=tiktok" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-emerald-300 font-mono focus:border-brand-500 outline-none">
-                    </div>
-
-                    <button type="button" id="submit-btn" onclick="createOrUpdateShortlink()" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-semibold py-3.5 px-6 rounded-xl transition flex items-center justify-center space-x-2">
-                        <i data-lucide="rocket" class="w-5 h-5"></i> <span>Criar e Publicar Link no GitHub</span>
+                    <!-- Botão Principal: Criar / Atualizar -->
+                    <button type="button" id="submit-btn" onclick="createOrUpdateShortlink()" 
+                        class="w-full bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-brand-600/25 transition flex items-center justify-center space-x-2">
+                        <i data-lucide="rocket" class="w-5 h-5"></i>
+                        <span id="submit-btn-text">Criar e Publicar Link no GitHub</span>
                     </button>
+
+                    <!-- Status de Sucesso / Erro -->
                     <div id="status-box" class="hidden rounded-xl p-4 text-sm border"></div>
                 </div>
             </div>
         </div>
 
-        <!-- Right Column (History) -->
+        <!-- Coluna da Direita: Lista de Links Criados -->
         <div class="lg:col-span-5 flex flex-col">
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex-grow flex flex-col">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-base font-bold text-white flex items-center gap-2"><i data-lucide="folder-git-2" class="w-5 h-5 text-brand-500"></i> Links Ativos</h2>
-                    <button onclick="loadExistingLinks()" class="px-2.5 py-1.5 bg-slate-800 text-slate-300 rounded-lg text-xs font-medium border border-slate-700">Sincronizar</button>
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl flex-grow flex flex-col">
+                <div class="flex items-center justify-between mb-3">
+                    <h2 class="text-base font-bold text-white flex items-center gap-2">
+                        <i data-lucide="folder-git-2" class="w-5 h-5 text-brand-500"></i>
+                        <span>Meus Links Criados</span>
+                    </h2>
+                    <button type="button" id="sync-btn" onclick="loadExistingLinksFromGitHub()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-medium border border-slate-700 transition flex items-center gap-1.5">
+                        <i id="sync-icon" data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                        <span>Sincronizar</span>
+                    </button>
                 </div>
-                <p class="text-xs text-slate-400 mb-4">Ao apagar um link aqui, ele é excluído do seu GitHub na hora.</p>
-                <div id="links-list" class="space-y-2.5 overflow-y-auto max-h-[500px] pr-1"></div>
+
+                <p class="text-xs text-slate-400 mb-4">
+                    Abaixo ficam fixos os seus links ativos. Use o <strong class="text-slate-200">lápis</strong> para alterar o destino (Update) ou a <strong class="text-rose-400">lixeira</strong> para apagar o link e a pasta do seu GitHub.
+                </p>
+
+                <div id="links-list" class="space-y-3 overflow-y-auto max-h-[580px] pr-1 flex-grow">
+                    <!-- Renderizado via JS -->
+                </div>
             </div>
         </div>
     </main>
 
-    <!-- Toast -->
+    <!-- Modal de Confirmação para Apagar Link -->
+    <div id="delete-modal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl">
+            <div class="flex items-center space-x-3 text-rose-400 mb-3">
+                <div class="p-2.5 bg-rose-500/10 rounded-xl border border-rose-500/20">
+                    <i data-lucide="trash-2" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-lg font-bold text-white">Apagar Link do GitHub?</h3>
+            </div>
+            <p class="text-sm text-slate-300 mb-2">
+                Você está prestes a excluir o link curto <strong id="delete-modal-slug" class="text-brand-400 font-mono">/tiktok</strong>.
+            </p>
+            <p class="text-xs text-slate-400 mb-6">
+                Isso removerá o arquivo <code class="text-slate-300">index.html</code> e apagará a pasta correspondente diretamente do seu repositório no GitHub.
+            </p>
+            <div class="flex items-center justify-end space-x-3">
+                <button type="button" onclick="closeDeleteModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition">
+                    Cancelar
+                </button>
+                <button type="button" id="confirm-delete-btn" onclick="confirmDeleteLink()" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold transition flex items-center gap-1.5">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    <span>Sim, Apagar Pasta</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Ajuda / Diagnóstico -->
+    <div id="help-modal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <i data-lucide="help-circle" class="w-5 h-5 text-brand-500"></i>
+                    Como Garantir que os Links Funcionem sem Erro 404
+                </h3>
+                <button type="button" onclick="toggleHelpModal()" class="text-slate-400 hover:text-white text-lg font-bold">×</button>
+            </div>
+            <div class="space-y-3 text-xs text-slate-300 leading-relaxed">
+                <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                    <strong class="text-white block mb-1">1. Nome do Usuário e Repositório:</strong>
+                    Para que o link curto fique <code class="text-emerald-400">https://evoluindonoamor.github.io/tiktok</code>, o seu usuário no GitHub deve ser <code class="text-white">evoluindonoamor</code> e o repositório deve se chamar exatamente <code class="text-white">evoluindonoamor.github.io</code>.
+                </div>
+                <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                    <strong class="text-white block mb-1">2. Tempo de Ativação do GitHub Pages (30 a 60 segundos):</strong>
+                    Quando você cria um link novo (ex: <code class="text-brand-400">/tiktok</code>), o GitHub leva cerca de <strong>30 a 60 segundos</strong> para publicar a pasta na internet. Se clicar no primeiro segundo e der 404, aguarde meio minuto e atualize a página (F5).
+                </div>
+                <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                    <strong class="text-white block mb-1">3. Como gerar seu Token (`ghp_...`):</strong>
+                    No GitHub, vá em <strong>Settings > Developer settings > Personal access tokens > Tokens (classic)</strong>. Gere um token com a caixa <strong><code class="text-emerald-400">repo</code></strong> marcada e cole no Passo 1 deste painel.
+                </div>
+            </div>
+            <div class="flex justify-end pt-2">
+                <button type="button" onclick="toggleHelpModal()" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold rounded-xl transition">
+                    Entendi, Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
     <div id="toast" class="fixed bottom-5 right-5 bg-slate-800 border border-slate-700 text-white px-4 py-3 rounded-xl shadow-2xl text-sm font-medium transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center space-x-2">
-        <span id="toast-msg">Sucesso!</span>
+        <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+        <span id="toast-msg">Operação realizada!</span>
     </div>
 
     <script>
+        // Inicializar ícones
         lucide.createIcons();
 
-        const STORAGE_KEYS = { OWNER: 'pl_gh_owner', REPO: 'pl_gh_repo', TOKEN: 'pl_gh_token', HISTORY: 'pl_links_history', NETWORKS: 'pl_custom_networks' };
-        const DEFAULT_NETWORKS = [{ emoji: '🎵', name: 'TikTok', slug: 'tiktok' }, { emoji: '📸', name: 'Instagram', slug: 'instagram' }, { emoji: '▶️', name: 'YouTube', slug: 'youtube' }];
+        // Chaves do LocalStorage (Nova versão v2 para limpar conflitos antigos de nomes de repositório)
+        const STORAGE_KEYS = {
+            OWNER: 'pl_v2_gh_owner',
+            REPO: 'pl_v2_gh_repo',
+            TOKEN: 'pl_gh_token', // Mantém o token já salvo anteriormente
+            HISTORY: 'pl_v2_links_history',
+            NETWORKS: 'pl_v2_custom_networks',
+            BASE_URL: 'pl_v2_base_url'
+        };
 
+        // Redes Sociais Padrão
+        const DEFAULT_NETWORKS = [
+            { emoji: '🎵', name: 'TikTok', slug: 'tiktok' },
+            { emoji: '📸', name: 'Instagram', slug: 'instagram' },
+            { emoji: '▶️', name: 'YouTube', slug: 'youtube' },
+            { emoji: '📌', name: 'Pinterest', slug: 'pinterest' },
+            { emoji: '💬', name: 'WhatsApp', slug: 'whatsapp' }
+        ];
+
+        // Estado atual
+        let currentBaseUrl = 'https://pay.kiwify.com.br/ALu3sst';
+        let pendingDeleteSlug = null;
+
+        // Ao carregar a página
         window.addEventListener('DOMContentLoaded', () => {
-            const savedOwner = localStorage.getItem(STORAGE_KEYS.OWNER);
-            const savedRepo = localStorage.getItem(STORAGE_KEYS.REPO);
-            const savedToken = localStorage.getItem(STORAGE_KEYS.TOKEN);
+            // Recupera configurações ou usa o padrão oficial evoluindonoamor
+            const savedOwner = localStorage.getItem(STORAGE_KEYS.OWNER) || 'evoluindonoamor';
+            const savedRepo = localStorage.getItem(STORAGE_KEYS.REPO) || 'evoluindonoamor.github.io';
+            const savedToken = localStorage.getItem(STORAGE_KEYS.TOKEN) || localStorage.getItem('pl_gh_token') || '';
+            const savedBase = localStorage.getItem(STORAGE_KEYS.BASE_URL);
 
-            if (savedOwner) document.getElementById('gh-owner').value = savedOwner;
-            if (savedRepo) document.getElementById('gh-repo').value = savedRepo;
+            document.getElementById('gh-owner').value = savedOwner;
+            document.getElementById('gh-repo').value = savedRepo;
             if (savedToken) document.getElementById('gh-token').value = savedToken;
 
+            if (savedBase) {
+                currentBaseUrl = savedBase;
+                highlightBaseButton(savedBase.includes('pay.kiwify') ? 'checkout' : 'sales');
+            }
+
             renderNetworksButtons();
-            updatePreviewAndSave();
+            onConfigChange();
             renderSavedHistory();
-            if (savedToken) loadExistingLinks();
+
+            if (savedToken) {
+                loadExistingLinksFromGitHub(true);
+            }
         });
 
+        /* ==========================================
+           1. GERENCIAMENTO DE CONFIGURAÇÃO GITHUB
+           ========================================== */
+        function onConfigChange() {
+            const owner = document.getElementById('gh-owner').value.trim() || 'evoluindonoamor';
+            const repo = document.getElementById('gh-repo').value.trim() || 'evoluindonoamor.github.io';
+            const token = document.getElementById('gh-token').value.trim();
+
+            localStorage.setItem(STORAGE_KEYS.OWNER, owner);
+            localStorage.setItem(STORAGE_KEYS.REPO, repo);
+            if (token) localStorage.setItem(STORAGE_KEYS.TOKEN, token);
+
+            const domain = getComputedBaseDomain(owner, repo);
+            document.getElementById('domain-prefix').innerText = `${domain}/`;
+
+            updateLivePreview();
+            updateConnectionBadge(owner, repo, token);
+        }
+
+        function getComputedBaseDomain(owner, repo) {
+            const cleanOwner = owner.toLowerCase();
+            const cleanRepo = repo.toLowerCase();
+            if (cleanRepo === `${cleanOwner}.github.io` || cleanRepo.endsWith('.github.io')) {
+                return cleanRepo;
+            }
+            return `${cleanOwner}.github.io/${cleanRepo}`;
+        }
+
+        function resetToDefaultRepo() {
+            document.getElementById('gh-owner').value = 'evoluindonoamor';
+            document.getElementById('gh-repo').value = 'evoluindonoamor.github.io';
+            onConfigChange();
+            showToast('Padrão evoluindonoamor.github.io restaurado!');
+        }
+
+        function updateConnectionBadge(owner, repo, token) {
+            const badge = document.getElementById('connection-badge');
+            if (token && owner && repo) {
+                badge.className = "inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+                badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 mr-2"></span>Pronto para Publicar`;
+            } else {
+                badge.className = "inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20";
+                badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400 mr-2 animate-pulse"></span>Aguardando Token`;
+            }
+        }
+
+        function toggleConfigSection() {
+            document.getElementById('config-section').classList.toggle('hidden');
+        }
+
+        function toggleTokenVisibility() {
+            const input = document.getElementById('gh-token');
+            const icon = document.getElementById('token-eye-icon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.setAttribute('data-lucide', 'eye-off');
+            } else {
+                input.type = 'password';
+                icon.setAttribute('data-lucide', 'eye');
+            }
+            lucide.createIcons();
+        }
+
+        /* ==========================================
+           2. ATALHOS DE REDES SOCIAIS (COM EXCLUSÃO)
+           ========================================== */
         function getNetworksList() {
             const saved = localStorage.getItem(STORAGE_KEYS.NETWORKS);
-            return saved ? JSON.parse(saved) : DEFAULT_NETWORKS;
+            if (saved) {
+                try { return JSON.parse(saved); } catch (e) {}
+            }
+            return DEFAULT_NETWORKS;
         }
 
         function renderNetworksButtons() {
             const container = document.getElementById('networks-buttons-container');
             const networks = getNetworksList();
-            container.innerHTML = networks.map(net => `
-                <div class="inline-flex items-center bg-slate-900 border border-slate-700/80 rounded-lg overflow-hidden group">
-                    <button type="button" onclick="setQuickPreset('${net.slug}')" class="px-3 py-1.5 text-xs font-medium text-slate-200 hover:bg-slate-800">
-                        ${net.emoji} ${net.name}
-                    </button>
-                    <button type="button" onclick="removeCustomNetwork('${net.slug}')" class="px-2 py-1.5 text-slate-500 hover:bg-rose-500/20 hover:text-rose-400 text-xs transition" title="Apagar Rede">
-                        ×
-                    </button>
-                </div>
-            `).join('');
+            const currentSlug = document.getElementById('link-slug').value.trim();
+
+            if (networks.length === 0) {
+                container.innerHTML = `<span class="text-xs text-slate-500 py-1">Nenhuma rede salva. Clique em "+ Nova Rede" ou "Restaurar".</span>`;
+                return;
+            }
+
+            container.innerHTML = networks.map(net => {
+                const isActive = currentSlug === net.slug;
+                const activeClasses = isActive 
+                    ? 'border-brand-500 bg-brand-500/15 text-white' 
+                    : 'border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-200';
+                return `
+                    <div class="inline-flex items-center border ${activeClasses} rounded-xl overflow-hidden transition shadow-sm">
+                        <button type="button" onclick="applyNetworkShortcut('${net.slug}')" class="px-3 py-1.5 text-xs font-medium flex items-center gap-1.5">
+                            <span>${net.emoji}</span>
+                            <span>${net.name}</span>
+                            <span class="text-[10px] font-mono text-slate-400">/${net.slug}</span>
+                        </button>
+                        <button type="button" onclick="removeCustomNetwork('${net.slug}')" class="px-2 py-1.5 text-slate-500 hover:bg-rose-500/20 hover:text-rose-400 text-xs font-bold border-l border-slate-800/80 transition" title="Apagar este botão de rede social">
+                            ×
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function applyNetworkShortcut(slug) {
+            document.getElementById('link-slug').value = slug;
+            updateTargetWithSrc(slug);
+            renderNetworksButtons();
+            updateLivePreview();
         }
 
         function toggleAddNetworkTab() {
-            document.getElementById('add-network-tab').classList.toggle('hidden');
+            const tab = document.getElementById('add-network-tab');
+            tab.classList.toggle('hidden');
+            if (!tab.classList.contains('hidden')) {
+                document.getElementById('new-net-name').focus();
+            }
+        }
+
+        function autoFillNewNetSlug() {
+            const name = document.getElementById('new-net-name').value.trim();
+            const slugInput = document.getElementById('new-net-slug');
+            slugInput.value = name.toLowerCase().replace(/[^a-z0-9-_]/g, '');
         }
 
         function addCustomNetwork() {
-            const emoji = document.getElementById('new-net-emoji').value || '🔗';
+            const emoji = document.getElementById('new-net-emoji').value.trim() || '🔗';
             const name = document.getElementById('new-net-name').value.trim();
-            const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '');
-            if(!name) return showToast('Preencha o nome!');
-            
-            const networks = getNetworksList();
+            const rawSlug = document.getElementById('new-net-slug').value.trim() || name;
+            const slug = rawSlug.toLowerCase().replace(/[^a-z0-9-_]/g, '');
+
+            if (!name || !slug) {
+                showToast('Preencha o nome ou a sigla da rede social!');
+                return;
+            }
+
+            let networks = getNetworksList();
+            networks = networks.filter(n => n.slug !== slug);
             networks.push({ emoji, name, slug });
+
             localStorage.setItem(STORAGE_KEYS.NETWORKS, JSON.stringify(networks));
-            renderNetworksButtons();
-            toggleAddNetworkTab();
-            setQuickPreset(slug);
+
+            document.getElementById('new-net-emoji').value = '';
+            document.getElementById('new-net-name').value = '';
+            document.getElementById('new-net-slug').value = '';
+            document.getElementById('add-network-tab').classList.add('hidden');
+
+            applyNetworkShortcut(slug);
+            showToast(`Rede "${name}" (/${slug}) adicionada!`);
         }
 
         function removeCustomNetwork(slug) {
@@ -223,163 +582,563 @@
             networks = networks.filter(n => n.slug !== slug);
             localStorage.setItem(STORAGE_KEYS.NETWORKS, JSON.stringify(networks));
             renderNetworksButtons();
+            showToast(`Atalho /${slug} removido.`);
         }
 
-        function sanitizeSlug() {
-            const input = document.getElementById('link-slug');
-            input.value = input.value.toLowerCase().replace(/[^a-z0-9-_]/g, '');
+        function restoreDefaultNetworks() {
+            localStorage.setItem(STORAGE_KEYS.NETWORKS, JSON.stringify(DEFAULT_NETWORKS));
+            renderNetworksButtons();
+            showToast('Redes sociais padrão restauradas!');
         }
 
-        function updatePreviewAndSave() {
-            const owner = document.getElementById('gh-owner').value.trim();
-            const repo = document.getElementById('gh-repo').value.trim();
-            const token = document.getElementById('gh-token').value.trim();
-            
-            localStorage.setItem(STORAGE_KEYS.OWNER, owner);
-            localStorage.setItem(STORAGE_KEYS.REPO, repo);
-            if(token) localStorage.setItem(STORAGE_KEYS.TOKEN, token);
+        /* ==========================================
+           3. SELETOR DE BASE KIWIFY E PREVIEW
+           ========================================== */
+        function selectBaseUrl(baseUrl, type) {
+            currentBaseUrl = baseUrl;
+            localStorage.setItem(STORAGE_KEYS.BASE_URL, baseUrl);
+            highlightBaseButton(type);
 
-            const baseDomain = repo.toLowerCase().endsWith('.github.io') ? repo.toLowerCase() : `${owner.toLowerCase()}.github.io/${repo.toLowerCase()}`;
-            document.getElementById('domain-prefix').innerText = `${baseDomain}/`;
-            
-            const badge = document.getElementById('connection-badge');
-            if (token && owner && repo) {
-                badge.className = "inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
-                badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 mr-2"></span>Conectado`;
+            const slug = document.getElementById('link-slug').value.trim() || 'tiktok';
+            updateTargetWithSrc(slug);
+            updateLivePreview();
+        }
+
+        function highlightBaseButton(type) {
+            const btnCheckout = document.getElementById('base-btn-checkout');
+            const btnSales = document.getElementById('base-btn-sales');
+
+            if (type === 'checkout') {
+                btnCheckout.className = "text-left p-3 rounded-xl border border-emerald-500/50 bg-emerald-500/10 hover:bg-emerald-500/15 transition group relative";
+                btnSales.className = "text-left p-3 rounded-xl border border-slate-800 bg-slate-900/60 hover:bg-slate-800/80 transition group relative";
+            } else {
+                btnSales.className = "text-left p-3 rounded-xl border border-sky-500/50 bg-sky-500/10 hover:bg-sky-500/15 transition group relative";
+                btnCheckout.className = "text-left p-3 rounded-xl border border-slate-800 bg-slate-900/60 hover:bg-slate-800/80 transition group relative";
             }
         }
 
-        function setQuickPreset(network) {
-            document.getElementById('link-slug').value = network;
-            document.getElementById('link-target').value = `https://pay.kiwify.com.br/ALu3sst?src=${network}`;
-            updatePreviewAndSave();
+        function onSlugInput() {
+            const slugInput = document.getElementById('link-slug');
+            const cleanSlug = slugInput.value.toLowerCase().replace(/[^a-z0-9-_]/g, '');
+            slugInput.value = cleanSlug;
+
+            if (cleanSlug) {
+                updateTargetWithSrc(cleanSlug);
+            }
+            renderNetworksButtons();
+            updateLivePreview();
         }
 
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toast-msg').innerText = msg;
-            toast.classList.remove('translate-y-20', 'opacity-0');
-            setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 2500);
+        function updateTargetWithSrc(slug) {
+            const targetInput = document.getElementById('link-target');
+            const currentVal = targetInput.value.trim();
+
+            try {
+                // Se já tiver uma URL válida, mantém a base atual ou usa a selecionada
+                const baseToUse = currentBaseUrl || 'https://pay.kiwify.com.br/ALu3sst';
+                targetInput.value = `${baseToUse}?src=${slug}`;
+            } catch (e) {
+                targetInput.value = `${currentBaseUrl}?src=${slug}`;
+            }
         }
 
-        function showStatus(type, html) {
-            const box = document.getElementById('status-box');
-            box.className = `rounded-xl p-4 text-sm border ${type === 'success' ? 'bg-emerald-950/60 border-emerald-600/50 text-emerald-200' : 'bg-rose-950/60 border-rose-600/50 text-rose-200'}`;
-            box.innerHTML = html;
-            box.classList.remove('hidden');
+        function updateLivePreview() {
+            const owner = document.getElementById('gh-owner').value.trim() || 'evoluindonoamor';
+            const repo = document.getElementById('gh-repo').value.trim() || 'evoluindonoamor.github.io';
+            const slug = document.getElementById('link-slug').value.trim() || 'tiktok';
+            const domain = getComputedBaseDomain(owner, repo);
+
+            const fullShortUrl = `https://${domain}/${slug}`;
+            document.getElementById('final-shortlink-preview').innerText = fullShortUrl;
         }
 
+        function copyPreviewLink() {
+            const text = document.getElementById('final-shortlink-preview').innerText;
+            copyToClipboard(text);
+        }
+
+        /* ==========================================
+           4. CRIAR OU ATUALIZAR LINK NO GITHUB
+           ========================================== */
         async function createOrUpdateShortlink() {
             const owner = document.getElementById('gh-owner').value.trim();
             const repo = document.getElementById('gh-repo').value.trim();
             const token = document.getElementById('gh-token').value.trim();
-            const slug = document.getElementById('link-slug').value.trim();
+            const slug = document.getElementById('link-slug').value.trim().replace(/^\/+|\/+$/g, '');
             const targetUrl = document.getElementById('link-target').value.trim();
 
-            if (!token || !slug || !targetUrl) return showStatus('error', 'Preencha todos os campos!');
+            if (!owner || !repo || !token) {
+                showStatus('error', '❌ Preencha seu <strong>Usuário, Repositório e Token do GitHub</strong> no Passo 1 acima.');
+                return;
+            }
+            if (!slug || !targetUrl) {
+                showStatus('error', '❌ Preencha o <strong>Slug Final</strong> e o <strong>Link de Destino</strong>.');
+                return;
+            }
+            if (slug.toLowerCase() === 'admin' || slug.toLowerCase() === 'admin.html') {
+                showStatus('error', '❌ O nome "admin" é reservado para este painel. Escolha outro slug.');
+                return;
+            }
 
-            const redirectHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Redirecionando...</title><meta http-equiv="refresh" content="0; url=${targetUrl}"><script>window.location.replace("${targetUrl}");<\/script></head><body><p>Redirecionando... <a href="${targetUrl}">Clique aqui</a>.</p></body></html>`;
+            const btn = document.getElementById('submit-btn');
+            const btnText = document.getElementById('submit-btn-text');
+            btn.disabled = true;
+            btnText.innerText = 'Publicando no GitHub... aguarde';
+
+            // HTML de redirecionamento ultra-rápido e compatível com todos os navegadores/redes sociais
+            const redirectHtml = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecionando...</title>
+    <link rel="canonical" href="${targetUrl}">
+    <meta http-equiv="refresh" content="0; url=${targetUrl}">
+    <script>
+        window.location.replace("${targetUrl}");
+    <\/script>
+</head>
+<body style="background:#0f172a;color:#94a3b8;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;">
+    <p>Redirecionando de forma segura... <a href="${targetUrl}" style="color:#f43f5e;">Clique aqui se não abrir automaticamente</a>.</p>
+</body>
+</html>`;
+
             const contentBase64 = btoa(unescape(encodeURIComponent(redirectHtml)));
             const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${slug}/index.html`;
 
-            document.getElementById('submit-btn').disabled = true;
             try {
+                // 1. Verifica se o arquivo já existe para pegar o SHA (Permite Update sem erro!)
                 let existingSha = null;
-                const checkRes = await fetch(apiUrl, { headers: { 'Authorization': `token ${token}` } });
-                if (checkRes.ok) existingSha = (await checkRes.json()).sha;
+                const checkRes = await fetch(apiUrl, {
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
 
-                const payload = { message: `Link /${slug}`, content: contentBase64 };
+                if (checkRes.ok) {
+                    const fileData = await checkRes.json();
+                    existingSha = fileData.sha;
+                }
+
+                // 2. Cria ou Atualiza o arquivo /{slug}/index.html
+                const payload = {
+                    message: existingSha ? `Atualizando link curto /${slug} -> ${targetUrl}` : `Criando link curto /${slug} -> ${targetUrl}`,
+                    content: contentBase64
+                };
                 if (existingSha) payload.sha = existingSha;
 
-                const putRes = await fetch(apiUrl, { method: 'PUT', headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const putRes = await fetch(apiUrl, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
 
                 if (putRes.ok || putRes.status === 201) {
-                    const shortUrl = repo.toLowerCase().endsWith('.github.io') ? `https://${repo}/${slug}` : `https://${owner}.github.io/${repo}/${slug}`;
+                    const domain = getComputedBaseDomain(owner, repo);
+                    const shortUrl = `https://${domain}/${slug}`;
+
                     saveToHistory(slug, shortUrl, targetUrl);
-                    showStatus('success', `✅ Link Publicado: <a href="${shortUrl}" target="_blank" class="underline">${shortUrl}</a>`);
-                    showToast('Link Criado!');
+                    cancelEditMode();
+
+                    showStatus('success', `
+                        <div class="space-y-2.5">
+                            <div class="font-bold text-emerald-300 flex items-center gap-1.5 text-base">
+                                ✅ ${existingSha ? 'Link Atualizado com Sucesso!' : 'Link Criado com Sucesso!'}
+                            </div>
+                            <p class="text-xs text-emerald-200/80">
+                                Seu link já foi enviado para o GitHub Pages (leva cerca de 30 a 60 segundos para propagar mundialmente):
+                            </p>
+                            <div class="bg-slate-950/90 border border-emerald-500/30 rounded-xl p-2.5 flex items-center justify-between gap-2">
+                                <a href="${shortUrl}" target="_blank" class="text-emerald-400 font-mono text-xs sm:text-sm underline truncate font-semibold">
+                                    ${shortUrl}
+                                </a>
+                                <button type="button" onclick="copyToClipboard('${shortUrl}')" class="shrink-0 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs px-3 py-1.5 rounded-lg transition">
+                                    Copiar Link
+                                </button>
+                            </div>
+                        </div>
+                    `);
+                    showToast(existingSha ? `Link /${slug} atualizado!` : `Link /${slug} publicado!`);
                 } else {
-                    showStatus('error', '❌ Erro ao salvar no GitHub.');
+                    const errData = await putRes.json().catch(() => ({}));
+                    showStatus('error', `❌ <strong>Erro do GitHub (${putRes.status}):</strong> ${errData.message || 'Verifique se o repositório "' + repo + '" existe e se o seu Token tem a permissão "repo".'}`);
                 }
-            } catch (e) {
-                showStatus('error', `❌ Erro: ${e.message}`);
+            } catch (error) {
+                showStatus('error', `❌ <strong>Erro de conexão:</strong> ${error.message}`);
+            } finally {
+                btn.disabled = false;
+                btnText.innerText = 'Criar e Publicar Link no GitHub';
             }
-            document.getElementById('submit-btn').disabled = false;
         }
 
+        /* ==========================================
+           5. HISTÓRICO, EDIÇÃO (UPDATE) E EXCLUSÃO
+           ========================================== */
         function saveToHistory(slug, shortUrl, targetUrl) {
             let history = JSON.parse(localStorage.getItem(STORAGE_KEYS.HISTORY) || '[]');
-            history = history.filter(i => i.slug !== slug);
-            history.unshift({ slug, shortUrl, targetUrl });
+            history = history.filter(item => item.slug !== slug);
+            history.unshift({
+                slug,
+                shortUrl,
+                targetUrl,
+                updatedAt: new Date().toLocaleDateString('pt-BR')
+            });
             localStorage.setItem(STORAGE_KEYS.HISTORY, JSON.stringify(history));
             renderSavedHistory();
         }
 
         function renderSavedHistory() {
             const listEl = document.getElementById('links-list');
-            const history = JSON.parse(localStorage.getItem(STORAGE_KEYS.HISTORY) || '[]');
-            if (history.length === 0) return listEl.innerHTML = '<div class="text-slate-500 text-center py-4 text-sm">Nenhum link.</div>';
+            const owner = document.getElementById('gh-owner').value.trim() || 'evoluindonoamor';
+            const repo = document.getElementById('gh-repo').value.trim() || 'evoluindonoamor.github.io';
+            const domain = getComputedBaseDomain(owner, repo);
 
-            listEl.innerHTML = history.map(item => `
-                <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 flex justify-between items-center group">
-                    <div class="overflow-hidden">
-                        <div class="text-brand-400 font-mono text-sm font-bold">/${item.slug}</div>
-                        <div class="text-xs text-slate-500 truncate mt-1">${item.targetUrl}</div>
+            const history = JSON.parse(localStorage.getItem(STORAGE_KEYS.HISTORY) || '[]');
+
+            if (history.length === 0) {
+                listEl.innerHTML = `
+                    <div class="border border-dashed border-slate-800 rounded-2xl p-8 text-center my-auto">
+                        <i data-lucide="link" class="w-8 h-8 text-slate-600 mx-auto mb-2"></i>
+                        <p class="text-sm font-semibold text-slate-400">Nenhum link criado ainda.</p>
+                        <p class="text-xs text-slate-500 mt-1">Escolha uma rede social ao lado e clique em Publicar, ou clique em "Sincronizar".</p>
                     </div>
-                    <div class="flex gap-1 ml-2">
-                        <button onclick="navigator.clipboard.writeText('${item.shortUrl}'); showToast('Copiado!')" class="p-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition" title="Copiar"><i data-lucide="copy" class="w-4 h-4"></i></button>
-                        <button onclick="deleteLink('${item.slug}')" class="p-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 rounded-lg transition" title="Apagar Pasta do GitHub"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            listEl.innerHTML = history.map(item => {
+                const liveShortUrl = `https://${domain}/${item.slug}`;
+                const isCheckout = item.targetUrl && item.targetUrl.includes('pay.kiwify');
+                const isSalesPage = item.targetUrl && item.targetUrl.includes('kiwify.app');
+                const badgeHtml = isCheckout 
+                    ? `<span class="text-[10px] px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Checkout</span>`
+                    : (isSalesPage ? `<span class="text-[10px] px-2 py-0.5 rounded-md bg-sky-500/10 text-sky-400 border border-sky-500/20">Pág. Vendas</span>` : '');
+
+                return `
+                    <div class="bg-slate-950 border border-slate-800/90 hover:border-slate-700 rounded-xl p-3.5 transition group">
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="overflow-hidden">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-brand-400 font-mono text-sm font-bold">/${item.slug}</span>
+                                    ${badgeHtml}
+                                </div>
+                                <a href="${liveShortUrl}" target="_blank" class="block text-xs font-mono text-slate-300 hover:text-white underline truncate mt-0.5">
+                                    ${liveShortUrl}
+                                </a>
+                                <div class="text-[11px] text-slate-500 font-mono truncate mt-1" title="${item.targetUrl}">
+                                    ↳ ${item.targetUrl}
+                                </div>
+                            </div>
+
+                            <!-- Botões de Ação: Copiar, Abrir, Editar (Update) e Apagar -->
+                            <div class="flex items-center gap-1 shrink-0">
+                                <button type="button" onclick="copyToClipboard('${liveShortUrl}')" class="p-2 bg-slate-900 hover:bg-slate-800 text-slate-200 rounded-lg border border-slate-800 transition" title="Copiar Link Curto">
+                                    <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                                </button>
+                                <a href="${liveShortUrl}" target="_blank" class="p-2 bg-slate-900 hover:bg-slate-800 text-slate-200 rounded-lg border border-slate-800 transition" title="Testar Link em Nova Aba">
+                                    <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                                </a>
+                                <button type="button" onclick="loadLinkForEdit('${item.slug}', '${item.targetUrl.replace(/'/g, "\\'")}')" class="p-2 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 rounded-lg border border-amber-500/20 transition" title="Editar / Atualizar Destino deste Link">
+                                    <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                                </button>
+                                <button type="button" onclick="openDeleteModal('${item.slug}')" class="p-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 rounded-lg border border-rose-500/20 transition" title="Apagar Link e Pasta do GitHub">
+                                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
+
             lucide.createIcons();
         }
 
-        async function deleteLink(slug) {
-            if(!confirm(`Apagar o link /${slug} do GitHub para sempre?`)) return;
+        // Carrega um link existente no formulário para fazer Update
+        function loadLinkForEdit(slug, targetUrl) {
+            document.getElementById('link-slug').value = slug;
+            if (targetUrl && targetUrl.startsWith('http')) {
+                document.getElementById('link-target').value = targetUrl;
+                if (targetUrl.includes('pay.kiwify.com.br')) {
+                    currentBaseUrl = 'https://pay.kiwify.com.br/ALu3sst';
+                    highlightBaseButton('checkout');
+                } else if (targetUrl.includes('kiwify.app')) {
+                    currentBaseUrl = 'https://kiwify.app/r3e8Jhf';
+                    highlightBaseButton('sales');
+                }
+            } else {
+                updateTargetWithSrc(slug);
+            }
+
+            document.getElementById('edit-mode-badge').classList.remove('hidden');
+            document.getElementById('submit-btn-text').innerText = `Atualizar Link /${slug} no GitHub`;
+            renderNetworksButtons();
+            updateLivePreview();
+            showToast(`Modo Edição: altere o destino de /${slug} e clique em Atualizar!`);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function cancelEditMode() {
+            document.getElementById('edit-mode-badge').classList.add('hidden');
+            document.getElementById('submit-btn-text').innerText = 'Criar e Publicar Link no GitHub';
+        }
+
+        // Modal de Exclusão (Sem usar confirm() nativo)
+        function openDeleteModal(slug) {
+            pendingDeleteSlug = slug;
+            document.getElementById('delete-modal-slug').innerText = `/${slug}`;
+            document.getElementById('delete-modal').classList.remove('hidden');
+        }
+
+        function closeDeleteModal() {
+            pendingDeleteSlug = null;
+            document.getElementById('delete-modal').classList.add('hidden');
+        }
+
+        async function confirmDeleteLink() {
+            if (!pendingDeleteSlug) return;
+            const slug = pendingDeleteSlug;
             const owner = document.getElementById('gh-owner').value.trim();
             const repo = document.getElementById('gh-repo').value.trim();
             const token = document.getElementById('gh-token').value.trim();
+
+            const btn = document.getElementById('confirm-delete-btn');
+            btn.disabled = true;
+            btn.innerHTML = `<span>Apagando do GitHub...</span>`;
+
             const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${slug}/index.html`;
 
             try {
-                const checkRes = await fetch(apiUrl, { headers: { 'Authorization': `token ${token}` } });
-                if (checkRes.ok) {
-                    const sha = (await checkRes.json()).sha;
-                    await fetch(apiUrl, { method: 'DELETE', headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ message: `Deletando /${slug}`, sha }) });
+                if (token && owner && repo) {
+                    const checkRes = await fetch(apiUrl, {
+                        headers: {
+                            'Authorization': `token ${token}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    });
+
+                    if (checkRes.ok) {
+                        const fileData = await checkRes.json();
+                        await fetch(apiUrl, {
+                            method: 'DELETE',
+                            headers: {
+                                'Authorization': `token ${token}`,
+                                'Accept': 'application/vnd.github.v3+json',
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                message: `Removendo link curto /${slug}`,
+                                sha: fileData.sha
+                            })
+                        });
+                    }
                 }
+
+                // Remove do histórico local
                 let history = JSON.parse(localStorage.getItem(STORAGE_KEYS.HISTORY) || '[]');
-                localStorage.setItem(STORAGE_KEYS.HISTORY, JSON.stringify(history.filter(i => i.slug !== slug)));
+                history = history.filter(item => item.slug !== slug);
+                localStorage.setItem(STORAGE_KEYS.HISTORY, JSON.stringify(history));
+
                 renderSavedHistory();
-                showToast(`/${slug} apagado!`);
+                showToast(`Pasta /${slug} apagada do GitHub com sucesso!`);
             } catch (e) {
-                showToast('Erro ao apagar.');
+                showToast('Erro ao comunicar com o GitHub.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i data-lucide="trash-2" class="w-4 h-4"></i><span>Sim, Apagar Pasta</span>`;
+                lucide.createIcons();
+                closeDeleteModal();
             }
         }
 
-        async function loadExistingLinks() {
+        /* ==========================================
+           6. SINCRONIZAR PASTAS E DESTINOS DO GITHUB
+           ========================================== */
+        async function loadExistingLinksFromGitHub(silent = false) {
             const owner = document.getElementById('gh-owner').value.trim();
             const repo = document.getElementById('gh-repo').value.trim();
             const token = document.getElementById('gh-token').value.trim();
-            if(!token) return;
-            
+
+            if (!token || !owner || !repo) {
+                if (!silent) showToast('Configure seu Token no Passo 1 para sincronizar.');
+                return;
+            }
+
+            const syncIcon = document.getElementById('sync-icon');
+            if (syncIcon) syncIcon.classList.add('animate-spin');
+
             try {
-                const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents`, { headers: { 'Authorization': `token ${token}` } });
+                const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents`, {
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
                 if (res.ok) {
                     const items = await res.json();
+                    const dirs = items.filter(i => i.type === 'dir' && !i.name.startsWith('.'));
+                    const domain = getComputedBaseDomain(owner, repo);
                     let history = JSON.parse(localStorage.getItem(STORAGE_KEYS.HISTORY) || '[]');
-                    
-                    items.filter(i => i.type === 'dir' && !i.name.startsWith('.')).forEach(dir => {
-                        if (!history.some(h => h.slug === dir.name)) {
-                            const shortUrl = repo.toLowerCase().endsWith('.github.io') ? `https://${repo}/${dir.name}` : `https://${owner}.github.io/${repo}/${dir.name}`;
-                            history.push({ slug: dir.name, shortUrl: shortUrl, targetUrl: 'Ativo no GitHub' });
+
+                    // Remove do histórico links que já não existem mais no GitHub
+                    const activeSlugs = dirs.map(d => d.name);
+                    history = history.filter(h => activeSlugs.includes(h.slug));
+
+                    // Busca o destino real de cada pasta no GitHub
+                    for (const dir of dirs) {
+                        const shortUrl = `https://${domain}/${dir.name}`;
+                        const existingItem = history.find(h => h.slug === dir.name);
+
+                        if (!existingItem || existingItem.targetUrl === 'Ativo no GitHub') {
+                            let extractedTarget = `https://pay.kiwify.com.br/ALu3sst?src=${dir.name}`;
+                            try {
+                                const fileRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${dir.name}/index.html`, {
+                                    headers: { 'Authorization': `token ${token}` }
+                                });
+                                if (fileRes.ok) {
+                                    const fileJson = await fileRes.json();
+                                    const decodedHtml = decodeURIComponent(escape(atob(fileJson.content.replace(/\n/g, ''))));
+                                    const match = decodedHtml.match(/url=([^"'>\s]+)/i);
+                                    if (match && match[1]) extractedTarget = match[1];
+                                }
+                            } catch (err) {}
+
+                            if (existingItem) {
+                                existingItem.targetUrl = extractedTarget;
+                                existingItem.shortUrl = shortUrl;
+                            } else {
+                                history.push({
+                                    slug: dir.name,
+                                    shortUrl,
+                                    targetUrl: extractedTarget,
+                                    updatedAt: 'Sincronizado'
+                                });
+                            }
                         }
-                    });
+                    }
+
                     localStorage.setItem(STORAGE_KEYS.HISTORY, JSON.stringify(history));
                     renderSavedHistory();
-                    showToast('Sincronizado!');
+                    if (!silent) showToast('Links sincronizados com o GitHub!');
+                } else if (!silent) {
+                    showToast('Não foi possível ler o repositório. Verifique o nome e o Token.');
                 }
-            } catch (e) {}
+            } catch (e) {
+                if (!silent) showToast('Erro de conexão ao sincronizar.');
+            } finally {
+                if (syncIcon) syncIcon.classList.remove('animate-spin');
+            }
+        }
+
+        /* ==========================================
+           7. AUTO-PUBLICAR ESTE PAINEL NO GITHUB
+           ========================================== */
+        async function deployAdminPanelToGitHub() {
+            const owner = document.getElementById('gh-owner').value.trim();
+            const repo = document.getElementById('gh-repo').value.trim();
+            const token = document.getElementById('gh-token').value.trim();
+
+            if (!owner || !repo || !token) {
+                showStatus('error', '❌ Preencha Usuário, Repositório e Token antes de enviar o painel.');
+                return;
+            }
+
+            const btn = document.getElementById('deploy-panel-btn');
+            btn.disabled = true;
+            btn.innerHTML = `<span>Enviando admin.html...</span>`;
+
+            try {
+                // Limpa temporariamente o valor do input de token do DOM caso esteja em atributo
+                const tokenInput = document.getElementById('gh-token');
+                const tempToken = tokenInput.value;
+                tokenInput.removeAttribute('value');
+
+                const fullHtml = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+                tokenInput.value = tempToken;
+
+                const contentBase64 = btoa(unescape(encodeURIComponent(fullHtml)));
+                const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/admin.html`;
+
+                let existingSha = null;
+                const checkRes = await fetch(apiUrl, {
+                    headers: { 'Authorization': `token ${token}` }
+                });
+                if (checkRes.ok) {
+                    existingSha = (await checkRes.json()).sha;
+                }
+
+                const payload = {
+                    message: 'Atualizando painel gerenciador admin.html',
+                    content: contentBase64
+                };
+                if (existingSha) payload.sha = existingSha;
+
+                const putRes = await fetch(apiUrl, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (putRes.ok || putRes.status === 201) {
+                    const domain = getComputedBaseDomain(owner, repo);
+                    showStatus('success', `✅ <strong>Painel atualizado no GitHub com sucesso!</strong> Acesse em: <a href="https://${domain}/admin.html" target="_blank" class="underline font-mono">https://${domain}/admin.html</a>`);
+                    showToast('Painel admin.html atualizado no GitHub!');
+                } else {
+                    showStatus('error', '❌ Erro ao enviar admin.html. Verifique seu Token.');
+                }
+            } catch (e) {
+                showStatus('error', `❌ Erro: ${e.message}`);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i data-lucide="cloud-upload" class="w-4 h-4"></i><span>Importar Painel p/ GitHub</span>`;
+                lucide.createIcons();
+            }
+        }
+
+        /* ==========================================
+           UTILITÁRIOS (CLIPBOARD, TOAST, MODAIS)
+           ========================================== */
+        function copyToClipboard(text) {
+            const tempInput = document.createElement('textarea');
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            showToast('Link copiado para a área de transferência!');
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        function showStatus(type, html) {
+            const box = document.getElementById('status-box');
+            box.className = `rounded-xl p-4 text-sm border ${
+                type === 'success' 
+                    ? 'bg-emerald-950/70 border-emerald-500/40 text-emerald-100' 
+                    : 'bg-rose-950/70 border-rose-500/40 text-rose-100'
+            }`;
+            box.innerHTML = html;
+            box.classList.remove('hidden');
+        }
+
+        function toggleHelpModal() {
+            document.getElementById('help-modal').classList.toggle('hidden');
         }
     </script>
 </body>
